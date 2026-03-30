@@ -1,0 +1,156 @@
+{% extends '__root.html' %}
+
+{% block body_block %}
+<h2>User Manual</h2>
+
+<p class="paragraph">
+	This guide explains how to use the D3lta UI to upload a CSV, launch processing with D3lta,
+	follow task progress, and download analysis results.
+</p>
+
+<section>
+	<h3>1) Before you start</h3>
+	<ul>
+		<li>Prepare a non-empty <code>.csv</code> file with a header row.</li>
+		<li>
+			Make sure at least one column contains natural-language text (sentences, messages, posts, etc.),
+			because this is the column you will analyze.
+		</li>
+		<li>
+			Keep your Task ID after upload. You will need it to check status and retrieve results.
+		</li>
+	</ul>
+</section>
+
+<section>
+	<h3>2) Upload a CSV and configure processing</h3>
+	<ol>
+		<li>Open <strong>Upload CSV</strong> in the top menu.</li>
+		<li>Set processing parameters (or keep defaults):</li>
+	</ol>
+
+	<ul>
+		<li><strong>Threshold Grapheme (0-1)</strong>: D3lta <code>threshold_grapheme</code>.</li>
+		<li><strong>Threshold Language (0-1)</strong>: D3lta <code>threshold_language</code>.</li>
+		<li><strong>Threshold Semantic (0-1)</strong>: D3lta <code>threshold_semantic</code>.</li>
+		<li><strong>Minimum Text Size</strong>: D3lta <code>min_size_txt</code> (positive integer).</li>
+		<li>
+			<strong>Truncate Text To</strong>: maximum characters used per cell from the selected text column.
+			Values above the configured platform maximum are capped automatically.
+		</li>
+		<li>
+			<strong>Use random N rows</strong>: optional random sample size. Use <code>0</code> (or empty)
+			to process the entire CSV.
+		</li>
+	</ul>
+
+	<ol start="3">
+		<li>Choose your CSV file in <strong>CSV File</strong>.</li>
+		<li>
+			Wait for the automatic preview. The UI reads your file and shows:
+			<ul>
+				<li>Detected columns</li>
+				<li>Line count</li>
+				<li>A preview table (first rows)</li>
+			</ul>
+		</li>
+		<li>
+			In <strong>Text Column Name</strong>, select the column containing text to analyze.
+			This field is required.
+		</li>
+		<li>
+			Optional: choose <strong>Column Separator</strong> manually (Auto, comma, semicolon, tab, pipe)
+			if auto-detection is not correct for your file.
+		</li>
+		<li>Click <strong>Submit</strong>.</li>
+	</ol>
+
+	<p>
+		After submission, the form is locked and an upload progress bar is displayed.
+		When upload succeeds, you are redirected automatically to the Task Status page.
+	</p>
+</section>
+
+<section>
+	<h3>3) Keep and reuse your Task ID</h3>
+	<ul>
+		<li>
+			On the status page, use the <strong>Copy</strong> button next to the Task ID while status is
+			<code>PENDING</code> or <code>PROCESSING</code>.
+		</li>
+		<li>
+			You can later open <strong>Task Status</strong> from the menu and paste the Task ID in the search form.
+		</li>
+	</ul>
+</section>
+
+<section>
+	<h3>4) Understand task statuses</h3>
+	<ul>
+		<li><strong>PENDING</strong>: file accepted; waiting for processing.</li>
+		<li><strong>PROCESSING</strong>: analysis is running.</li>
+		<li><strong>DONE</strong>: results are ready to preview and download.</li>
+		<li><strong>FAILED</strong>: processing failed; details may be available in Error Details.</li>
+		<li><strong>EXPIRED</strong>: result retention time passed; re-upload is required.</li>
+	</ul>
+
+	<p>
+		For pending/processing tasks, the status page refreshes automatically about every 30 seconds
+		when the status changes.
+	</p>
+</section>
+
+<section>
+	<h3>5) Review and download results (DONE tasks)</h3>
+	<p>
+		When a task is <code>DONE</code>, the page shows two result areas.
+	</p>
+
+	<h4>Matches</h4>
+	<ul>
+		<li>Displays a preview of the first 10 rows.</li>
+		<li>
+			Use the <strong>Download</strong> button to download the full matches CSV
+			(with item count and file size shown).
+		</li>
+	</ul>
+
+	<h4>Clusters</h4>
+	<ul>
+		<li>Select a cluster from the dropdown (All Clusters, Non-clustered, or a specific cluster).</li>
+		<li>The preview loads dynamically for the selected cluster.</li>
+		<li>Use the corresponding <strong>Download</strong> button to export full cluster data.</li>
+	</ul>
+</section>
+
+<section>
+	<h3>6) Troubleshooting</h3>
+	<ul>
+		<li>
+			<strong>Upload failed / invalid input</strong>: verify all required form fields, especially
+			<em>Text Column Name</em>, and check numeric parameters are valid.
+		</li>
+		<li>
+			<strong>Task not found</strong>: confirm the Task ID was copied fully and without extra characters.
+		</li>
+		<li>
+			<strong>Processing failed</strong>: retry with default parameters and ensure the selected column
+			contains natural-language text (not IDs, dates, or numeric-only values).
+		</li>
+		<li>
+			<strong>Expired</strong>: results are no longer available; upload the CSV again to create a new task.
+		</li>
+	</ul>
+</section>
+
+<section>
+	<h3>7) Notes and best practices</h3>
+	<ul>
+		<li>Start with defaults, then tune thresholds if needed.</li>
+		<li>For large datasets, use <strong>Use random N rows</strong> to run quick trial analyses first.</li>
+		<li>
+			If some text cells are very long, set <strong>Truncate Text To</strong> to balance speed and detail.
+		</li>
+	</ul>
+</section>
+{% endblock %}

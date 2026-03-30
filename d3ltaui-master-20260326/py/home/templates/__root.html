@@ -43,7 +43,13 @@
 
 					</a>
 
-					<a href="{% static 'help.pdf' %}" target="_blank" rel="noopener noreferrer">Help</a>
+					<a
+						href="{% url 'help' %}"
+						{% if nav_selected_item == "help" %} aria-current="page" {% endif %}>
+						{% if nav_selected_item == "help" %}<strong>{% endif %}
+						Help
+						{% if nav_selected_item == "help" %}</strong>{% endif %}
+					</a>
 			</nav>
 		</header>
 
