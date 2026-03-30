@@ -1,0 +1,28 @@
+main form {
+	display: flex;
+	flex-flow: column;
+}
+
+main form input, main form select {
+	min-width: 300px;
+	width: auto;
+}
+
+main form input[type=file] {
+	min-width: 1px;
+}
+
+main form button {
+	width: auto;
+}
+
+main form .form-row:not(.hidden) {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+main form .form-row label {
+	display: flex;
+	flex-flow: column;
+	margin: 0 1em;
+}

@@ -1,0 +1,22 @@
+{% extends '__root.html' %}
+
+{% block body_block %}
+<section class="paragraph">
+	<h2> Upload Failed </h2>
+	<p>
+		{% if invalid_input %}
+			Invalid or missing form data.
+		{% elif invalid_file %}
+			Failed saving the uploaded file "{{ invalid_file|escape }}".
+		{% else %}
+			Upload failed. No file received.
+		{% endif %}
+	</p>
+</section>
+
+<p class="paragraph">
+	<a class="button-link" href="{% url 'uploadcsv' %}">
+		Upload New
+	</a>
+</p>
+{% endblock %}

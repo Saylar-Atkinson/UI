@@ -1,0 +1,25 @@
+{% extends '__root.html' %}
+
+{% block body_block %}
+<h2>{{ title }}</h2>
+
+<p class="paragraph">
+	To check the status of a file that you have uploaded for processing, please type its task ID below.
+</p>
+
+<form action="{% url 'job_search' %}" method="post">
+	{% csrf_token %}
+	<fieldset class="form-row">
+		<label>
+			Task ID:
+			<input type="text" name="job_id" required>
+		</label>
+	</fieldset>
+
+	<fieldset class="form-row">
+		<label>
+			<button type="submit">Check</button>
+		</label>
+	</fieldset>
+</form>
+{% endblock %}

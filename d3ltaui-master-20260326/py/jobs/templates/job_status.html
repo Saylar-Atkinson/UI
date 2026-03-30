@@ -1,0 +1,144 @@
+{% extends '__root.html' %}
+
+{% block body_block %}
+<h2>{{ title }}</h2>
+
+<table class="job-status-summary-table">
+	<tbody>
+		<tr>
+			<th>Task ID:</th>
+			<td>
+					<span id="job_id">{{ job_id }}</span>
+
+					{% if status == "PENDING" or status == "PROCESSING" %}
+						<button type="button" class="button-link small" onclick="copyJobIdToClipboard()">
+							Copy
+							<span id="copy_job_id_status"></span>
+						</button>
+						<br>
+						<strong class="job-status-keep-id-warning">
+							<i>You will need this ID to download the processing results.</i>
+						</strong>
+					{% endif %}
+			</td>
+		</tr>
+
+		{% if status is not None %}
+		<tr>
+			<th>Processing Parameters:</th>
+			<td>
+				<ul>
+					<li>
+						Thresholds: { grapheme={{job.threshold_grapheme}}, language={{job.threshold_language}}, semantic={{job.threshold_semantic}} }
+					</li>
+					<li>
+						Cell Text Size: { min={{job.min_size_txt}}, truncate to={{job.max_content_length}} }
+					</li>
+					<li>
+						Use CSV column &quot;{{ job.doc_content }}&quot;,
+						{% if job.use_n_rows %} {{ job.use_n_rows }} {% else %} all {% endif %}
+						rows
+					</li>
+				</ul>
+			</td>
+		</tr>
+		{% endif %}
+
+		{% if job.original_file_name %}
+		<tr>
+			<th>File:</th>
+			<td> {{ job.original_file_name }} </td>
+		</tr>
+		{% endif %}
+
+		{% if job.created_at %}
+		<tr>
+			<th>Uploaded On:</th>
+			<td>
+				<time datetime="{{ job.created_at|date:'c' }}"> {{ job.created_at|date:'Y-m-d H:i:s' }} </time>
+			</td>
+		</tr>
+		{% endif %}
+
+		{% if job.started_at %}
+			<tr>
+				<th>Processing Started:</th>
+				<td>
+					<time datetime="{{ job.started_at|date:'c' }}"> {{ job.started_at|date:'Y-m-d H:i:s' }} </time>
+				</td>
+			</tr>
+		{% endif %}
+
+		{% if job.finished_at %}
+			<tr>
+				<th>Processing Finished:</th>
+				<td>
+					<time datetime="{{ job.finished_at|date:'c' }}"> {{ job.finished_at|date:'Y-m-d H:i:s' }} </time>
+				</td>
+			</tr>
+		{% endif %}
+
+		{% if job.expired_at %}
+			<tr>
+				<th>Expired:</th>
+				<td>
+					<time datetime="{{ job.expired_at|date:'c' }}"> {{ job.expired_at|date:'Y-m-d H:i:s' }} </time>
+				</td>
+			</tr>
+		{% endif %}
+
+		<tr>
+			<th>Status:</th>
+			<td>
+				{% if status is None %}
+					Task not found. Please verify the ID is correct.
+				{% elif status == "PENDING" %}
+					File uploaded successfully. Processing will start soon.
+				{% elif status == "PROCESSING" %}
+					Processing. Please check again later.
+				{% elif status == "DONE" %}
+					Processed successfully
+				{% elif status == "FAILED" %}
+					<aside>
+						Processing failed. Please, try again using the default processing parameters, and make sure you have selected a valid column for processing.
+					</aside>
+					{% if job.script_message %}
+						<details class="job-processing-error-details">
+							<summary>Error Details</summary>
+							<aside>{{ job.script_message|escape }}</aside>
+						</details>
+					{% endif %}
+				{% elif status == "EXPIRED" %}
+					Download time has expired. Please re-upload the file to process it again.
+				{% else %}
+					Unknown ({{ status }})
+				{% endif %}
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<p class="paragraph">
+	{% if status == "PENDING" or status == "PROCESSING" %}
+	<i>
+		You can check the processing status, review and download the results on the <a href="{% url 'jobs' %}">{{title}}</a> page by using the Task ID above.
+	</i>
+	{% endif %}
+</p>
+
+{% if status == "DONE" %}
+	{% include "job_status_success_bottom.html" %}
+{% else %}
+	{% include "bottom_navigation.html" %}
+{% endif %}
+
+{% endblock %}
+
+{% block ending_block %}
+<script>
+{% include 'jobs.js' %}
+{% if job %}
+	autoReloadOnStatusChange('{{status}}', '{% url "job_status_api" job_id %}', 30000);
+{% endif %}
+</script>
+{% endblock %}

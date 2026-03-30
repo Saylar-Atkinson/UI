@@ -1,0 +1,61 @@
+{% load static %}
+<!doctype html>
+<html lang="en-US">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="color-scheme" content="light dark">
+
+		<!-- <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}"> -->
+		<link rel="stylesheet" href="{% static 'd3ltaui.css' %}">
+
+		<title>
+			{% if title %} {{ title }} | {% endif %} D3lta UI
+		</title>
+	</head>
+
+	<body>
+		<header class="container">
+			<div class="header-logo">
+				<a href="{% url 'index' %}">
+					<strong> D3lta UI </strong>
+				</a>
+			</div>
+			<nav>
+					<a
+						href="{% url 'uploadcsv' %}"
+						{% if nav_selected_item == "uploadcsv" %} aria-current="page" {% endif %}>
+
+						{% if nav_selected_item == "uploadcsv" %}<strong>{% endif %}
+						Upload CSV
+						{% if nav_selected_item == "uploadcsv" %}</strong>{% endif %}
+
+					</a>
+
+					<a
+						href="{% url 'jobs' %}"
+						{% if nav_selected_item == "jobs" %} aria-current="page" {% endif %}>
+
+						{% if nav_selected_item == "jobs" %}<strong>{% endif %}
+						Task Status
+						{% if nav_selected_item == "jobs" %}</strong>{% endif %}
+
+					</a>
+
+					<a href="{% static 'help.pdf' %}" target="_blank" rel="noopener noreferrer">Help</a>
+			</nav>
+		</header>
+
+		<main class="container">
+			<article>
+				{% block body_block %}{% endblock %}
+				<footer>
+					<small>&copy; {% now "Y" %} CSD.eu</small>
+				</footer>
+			</article>
+		</main>
+
+		{% block ending_block %}{% endblock %}
+	</body>
+</html>

@@ -1,0 +1,163 @@
+{% extends '__root.html' %}
+
+{% block body_block %}
+<h2>Upload CSV</h2>
+<p class="paragraph"> Upload and analyse a CSV file using the D3lta "semantic_faiss" function. </p>
+
+<form id="uploadcsv_form" action="{% url 'accept_csv' %}" method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	<section>
+		<h3>Processing Parameters</h3>
+
+		<fieldset class="form-row">
+			<label for="threshold_grapheme">
+				<span class="form-label-with-help">
+					<span>Threshold Grapheme (0–1):</span>
+					<small>
+						[ <a href="#" onclick="openHelpDialog('Threshold Grapheme', 'D3lta threshold_grapheme parameter. Must be a floating point number between 0 and 1.')">Help?</a> ]
+					</small>
+				</span>
+				<input type="number" id="threshold_grapheme" name="threshold_grapheme" min="0" max="1" step="0.001" value="0.693" required>
+			</label>
+
+			<label for="threshold_language">
+				<span class="form-label-with-help">
+					<span>Threshold Language (0–1):</span>
+					<small>
+						[ <a href="#" onclick="openHelpDialog('Threshold Language', 'D3lta threshold_language parameter. Must be a floating point number between 0 and 1.')">Help?</a> ]
+					</small>
+				</span>
+				<input type="number" id="threshold_language" name="threshold_language" min="0" max="1" step="0.001" value="0.715" required>
+			</label>
+
+			<label for="threshold_semantic">
+				<span class="form-label-with-help">
+					<span>Threshold Semantic (0–1):</span>
+					<small>
+						[ <a href="#" onclick="openHelpDialog('Threshold Semantic', 'D3lta threshold_semantic parameter. Must be a floating point number between 0 and 1.')">Help?</a> ]
+					</small>
+				</span>
+				<input type="number" id="threshold_semantic" name="threshold_semantic" min="0" max="1" step="0.001" value="0.85" required>
+			</label>
+		</fieldset>
+
+		<fieldset class="form-row">
+			<label for="min_size_txt">
+				<span class="form-label-with-help">
+					<span>Minimum Text Size:</span>
+					<small>
+						[ <a href="#" onclick="openHelpDialog('Minimum Text Size', 'min_size_txt D3lta parameter. Must be a positive integer.')">Help?</a> ]
+					</small>
+				</span>
+				<input type="number" id="min_size_txt" name="min_size_txt" min="1" step="1" value="10" required>
+			</label>
+
+			<label for="truncate_size_txt">
+				<span class="form-label-with-help">
+					<span>Truncate Text To:</span>
+					<small>
+						[ <a href="#" onclick="openHelpDialog('Truncate Text To', 'D3lta can not process unlimited-length text. This parameter sets the maximum length of the text in the selected column that will be used for processing. Any CSV cells containing longer text will be truncated to this number.')">Help?</a> ]
+					</small>
+				</span>
+				<input type="number" id="truncate_size_txt" name="truncate_size_txt" min="1" step="1" max="{{max_processing_length}}" placeholder="Default: {{ processing_length }} characters">
+			</label>
+
+			<label for="use_n_rows">
+				<span class="form-label-with-help">
+					<span>Use random N rows:</span>
+					<small>
+						[ <a href="#" onclick="openHelpDialog('Use random N rows', 'If you need to analyze only a small subset of the CSV file, set this parameter. This will instruct D3lta to pick random N rows and process only them. Useful, if you have a large CSV file, and you are still adjusting the other parameters, but you need to get test results in a couple of seconds, rather than waiting for the entire file to be processed.');">Help?</a> ]
+					</small>
+				</span>
+				<input type="number" id="use_n_rows" name="use_n_rows" min="0" step="1" placeholder="Default: 0 (use entire CSV)">
+			</label>
+		</fieldset>
+	</section>
+
+	<section>
+		<h3>File Options</h3>
+
+		<fieldset class="form-row">
+			<label>
+				CSV File:
+				<input type="file" id="csv_file" name="csv_file" accept=".csv,text/csv" required onchange="onCSV(this)">
+			</label>
+		</fieldset>
+
+		<fieldset id="uploadcsv_preview_file_options_container" class="form-row hidden">
+			<label>
+				<span class="form-label-with-help">
+					<span>Text Column Name:</span>
+					<small>
+						[ <a href="#" onclick="openHelpDialog('Text Column Name', 'Select the CSV column that contains the text you need to analyze. Please, select only columns containing natural-language text. Choosing a column that contains dates, numbers, filenames, or other non-linguistic content may produce irrelevant results and cause processing to stop prematurely.')">Help?</a> ]
+					</small>
+				</span>
+				<select id="uploadcsv_preview_doc_content" name="doc_content" required></select>
+			</label>
+
+			<label>
+				Column Separator:
+				<select id="uploadcsv_preview_csv_column_separator" name="column_separator">
+					<option value="">Auto</option>
+					<option value=",">Comma (,)</option>
+					<option value=";">Semicolon (;)</option>
+					<option value="\t">Tab (&#x21E5;)</option>
+					<option value="|">Pipe (|)</option>
+				</select>
+			</label>
+		</fieldset>
+	</section>
+
+	<section id="uploadcsv_preview_section" class="hidden">
+		<h3>File Preview</h3>
+
+		<p id="uploadcsv_preview_loading_label">
+			Loading file preview. Please, wait...
+		</p>
+
+		<p id="uploadcsv_preview_failed_label" class="hidden">
+			Could not generate file preview. Please make sure the file is a valid non-empty CSV.
+		</p>
+
+		<p id="uploadcsv_preview_line_count_label" class="hidden">
+			The file contains <span id="uploadcsv_preview_line_count"></span> lines.
+		</p>
+
+		<div class="preview-table-container">
+			<table id="uploadcsv_preview_table" class="hidden striped preview-table">
+				<thead></thead>
+				<tbody></tbody>
+			</table>
+		</div>
+	</section>
+
+	<fieldset class="form-row">
+		<label>
+			<button type="submit">Submit</button>
+		</label>
+	</fieldset>
+
+	<div class="hidden">
+		<label> Uploading <span id="uploadcsv_progress_file_name"></span>… </label>
+		<progress aria-label="upload progress"></progress>
+	</div>
+</form>
+
+<dialog>
+	<article>
+		<header>
+			<button aria-label="close" rel="prev" onclick="closeHelpDialog()"></button>
+			<h3></h3>
+		</header>
+		<p></p>
+		<footer>
+			<button onclick="closeHelpDialog()">Close</button>
+		</footer>
+	</article>
+</dialog>
+
+{% endblock %}
+
+{% block ending_block %}
+<script>{% include 'uploadcsv.js' %}</script>
+{% endblock %}

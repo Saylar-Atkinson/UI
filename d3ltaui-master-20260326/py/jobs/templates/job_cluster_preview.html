@@ -1,0 +1,41 @@
+<p> First 10 rows of the results are shown in the table below. Click the download button to download the full results. </p>
+
+{% with preview=cluster.preview %}
+	<div class="preview-table-container">
+		<table class="striped preview-table">
+			<thead>
+				<tr>
+					{% for column in preview.columns %}
+						<th>{{ column }}</th>
+					{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+				{% for row in preview.data %}
+					<tr>
+						{% for cell in row %}
+							<td>
+								<div title="{{ cell }}">{{ cell }}</div>
+							</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endwith %}
+
+<p class="paragraph">
+	<a class="button-link" href="{{ cluster.url }}">
+		Download
+		{% if cluster.data_id == "none" %}
+			Non-clustered
+		{% elif cluster.data_id == "all" %}
+			All Clusters
+		{% else %}
+			Cluster {{ cluster.data_id }}
+		{% endif %}
+
+		({{ cluster.file_lines }} items, {{ cluster.file_size_human }})
+	</a>
+</p>

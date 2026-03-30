@@ -1,0 +1,66 @@
+<section>
+	<h3> Matches </h3>
+	<p> First 10 rows of the results are shown in the table below. Click the download button to download the full results. </p>
+
+	{% with matches=job.matches %}
+		<div class="preview-table-container">
+			{% with matches_preview=matches.preview %}
+				<table class="striped preview-table">
+					<thead>
+						<tr>
+							{% for column in matches_preview.columns %}
+								<th>{{ column }}</th>
+							{% endfor %}
+						</tr>
+					</thead>
+					<tbody>
+						{% for row in matches_preview.data %}
+							<tr>
+								{% for cell in row %}
+									<td>
+										<div title="{{ cell }}">{{ cell }}</div>
+									</td>
+								{% endfor %}
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% endwith %}
+		</div>
+
+		<p class="paragraph">
+			<a class="button-link" href="{{ matches.url }}"> Download ({{ matches.file_lines }} items, {{ matches.file_size_human }}) </a>
+		</p>
+	{% endwith %}
+
+</section>
+
+<section>
+	<h3> Clusters </h3>
+
+	<form>
+		<fieldset class="form-row">
+			<label>
+				Select Cluster:
+				<select id="select_job_output_cluster" name="cluster_name" onchange="onClusterChange(this)">
+					{% for cluster in job.clusters %}
+						<option value="{% url 'cluster_preview' job_id=job.id cluster_id=cluster.data_id %}">
+							{% if cluster.data_id == "none" %}
+								Non-clustered
+							{% elif cluster.data_id == "all" %}
+								All Clusters
+							{% else %}
+								Cluster {{ cluster.data_id }}
+							{% endif %}
+
+							({{ cluster.file_lines }} items, {{ cluster.file_size_human }})
+						</option>
+					{% endfor %}
+				</select>
+			</label>
+		</fieldset>
+	</form>
+
+	<div id="cluster_preview_container"></div>
+
+</section>
